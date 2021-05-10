@@ -3,19 +3,46 @@ import lara._JavaTypes;
 import lara.JavaInterop;
 
 /**
- * Launches processes.
+ * @class Launches processes.
  */
 var ProcessExecutor = function() {
 	// Configuration
+	/** 
+	 * The working directory for the process
+	 * @member {String}
+	 */
 	this.workingDir = "./";
+	/** 
+	 * @member {Boolean}
+	 */
 	this.printToConsole = true;
+	/** 
+	 * Filename to redirect the process output
+	 * @member {String}
+	 */
 	this.outputFile = undefined;
+	/**
+	 * Wether the execution output should be appendend to file
+	 * {@link ProcessExecutor#outputFile} or overwrite its content
+	 * @member {Boolean}
+	 */
 	this.append = false;
+	/**
+	 * Prefix that precedes the execution output (only applies when execution
+	 * output is redirected to a file)
+	 * @member {String}
+	 */
+	this.outputPrefix = undefined;
+	/**
+	 * Indicates wether to output both output and error streams of the executing
+	 * process (false) or just the error stream (true)
+	 * @member {Boolean}
+	 */
+	this.logErrorsOnly = false;
+
 	this.timeUnit = new TimeUnits("SECONDS");
 	this.timeout = undefined;
-	this.outputPrefix = undefined;
 	this.stopOnError = false;
-	this.logErrorsOnly = false;
 	
 	// Private state
 	this.lastOutput = undefined;
@@ -106,7 +133,8 @@ ProcessExecutor.prototype.setTimeout = function(timeout) {
 }
 
 /**
- * @param {(number|string)} returnValue an integer that represents the return value of the process executor
+ * @param {(number|string)} returnValue an integer that represents the return
+ * value of the process executor
  */
 ProcessExecutor.prototype.setCustomReturnValue = function(returnValue) {
 	if(typeof returnValue === "string") {
@@ -120,11 +148,28 @@ ProcessExecutor.prototype.setCustomReturnValue = function(returnValue) {
 	return this;
 }
 
+/**
+ * Set the prefix for the command execution output
+ * @see {@link ProcessExecutor#execute}
+ * @param outputPrefix 
+ * @returns The {@link ProcessExecutor} object itself for method chaining
+ */
 ProcessExecutor.prototype.setOutputPrefix = function(outputPrefix) {
 	this.outputPrefix = outputPrefix;
 	return this;
 }
 
+/**
+ * Launch a new command
+ * 
+ * @param {String|String[]} command The command to be executed. If the command
+ * requires arguments, pass an array of strings where the first value is the
+ * command and the remainder values are the arguments. E.g. `['cmd', '--arg1',
+ * '--arg2=val]`
+ * @returns {String} The standard output content followed by standard error 
+ * content on a new line. If {@linkcode ProcessExecutor#logErrorsOnly} is `true`
+ * only returns the standard error content
+ */
 ProcessExecutor.prototype.execute = function(command) {
 
 	//if(!isString(command) && !isArray(command)) {
@@ -205,6 +250,10 @@ ProcessExecutor.prototype.execute = function(command) {
 	return executeOutput;
 }
 
+/**
+ * @returns {String|String[]|undefined} the last executed command by this
+ * process executor, or undefined if no process was executed yet
+ */
 ProcessExecutor.prototype.getCommand = function() {
 	if(this.lastCommand === undefined) {
 		println("ProcessExecutor.getLastCommand: no execution has been done yet");
